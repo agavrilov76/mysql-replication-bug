@@ -1,0 +1,28 @@
+version: "3"
+services:
+  master:
+    image: mysql:8.0.19
+    ports:
+      - "13306:3306"
+    tmpfs:
+      - /var/lib/mysql
+    volumes:
+      - ./initdb.d:/docker-entrypoint-initdb.d      
+    command: mysqld --server-id=1 --log-bin=log-bin --log-slave-updates=1 --binlog_format=MIXED --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: test
+    networks:
+      - mysqlnet
+  slave:
+    image: mysql:8.0.19
+    ports:
+      - "13307:3306"
+    tmpfs:
+      - /var/lib/mysql
+    command: mysqld --server-id=2 --read-only=1 --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: test
+    networks:
+      - mysqlnet
+networks:
+  mysqlnet:
